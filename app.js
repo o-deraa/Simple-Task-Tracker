@@ -7,6 +7,13 @@ const emptyState = document.getElementById('empty-state');
 const longEmpty = document.getElementById('long-empty');
 const themeButton = document.getElementById('theme-button');
 const trashIcon = document.getElementById('icon-trash');
+const taskForm = document.getElementById('task-form');
+const taskTitle = document.getElementById('task-title');
+const taskCourse = document.getElementById('task-course');
+const taskDeadline = document.getElementById('task-deadline');
+const errorTitle = document.getElementById('error-title');
+const errorCourse = document.getElementById('error-course');
+const errorDeadline = document.getElementById('error-deadline');
 
 let tasks = [];
 
@@ -105,6 +112,56 @@ function render() {
   emptyState.textContent = emptyMessage();
   longEmpty.hidden = longTasks.length > 0;
 }
+
+function showError(input, element, message) {
+  input.setAttribute('aria-invalid', 'true');
+  element.textContent = message;
+  element.hidden = false;
+}
+
+function clearError(input, element) {
+  input.removeAttribute('aria-invalid');
+  element.textContent = '';
+  element.hidden = true;
+}
+
+taskForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const judul = taskTitle.value.trim();
+  const matkul = taskCourse.value;
+  const deadline = taskDeadline.value;
+  let firstInvalid = null;
+
+  if (judul.length < 3) {
+    showError(taskTitle, errorTitle, 'Judul tugas minimal 3 karakter.');
+    firstInvalid = taskTitle;
+  }
+
+  if (matkul === '') {
+    showError(taskCourse, errorCourse, 'Pilih mata kuliah dulu.');
+    if (!firstInvalid) firstInvalid = taskCourse;
+  }
+
+  if (deadline === '') {
+    showError(taskDeadline, errorDeadline, 'Deadline wajib diisi.');
+    if (!firstInvalid) firstInvalid = taskDeadline;
+  }
+
+  if (firstInvalid) {
+    firstInvalid.focus();
+    return;
+  }
+
+  tasks.push({ id: createId(), judul, matkul, deadline, selesai: false });
+  taskForm.reset();
+  taskTitle.focus();
+  render();
+});
+
+taskTitle.addEventListener('input', () => clearError(taskTitle, errorTitle));
+taskCourse.addEventListener('change', () => clearError(taskCourse, errorCourse));
+taskDeadline.addEventListener('input', () => clearError(taskDeadline, errorDeadline));
 
 function themeLabel(theme) {
   themeButton.textContent = theme === 'gelap' ? 'Mode terang' : 'Mode gelap';

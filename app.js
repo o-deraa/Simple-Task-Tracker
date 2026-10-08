@@ -290,4 +290,82 @@ themeButton.addEventListener('click', () => {
 
 themeLabel(document.documentElement.dataset.tema || 'terang');
 
+const FOCUS_SECONDS = 25 * 60;
+const BREAK_SECONDS = 5 * 60;
+const CYCLE_COUNT = 4;
+
+const timerNumber = document.getElementById('timer-number');
+const timerPhase = document.getElementById('timer-phase');
+const timerCycles = document.getElementById('timer-cycles');
+const timerCycleText = document.getElementById('timer-cycle-text');
+const startButton = document.getElementById('start-button');
+const pauseButton = document.getElementById('pause-button');
+
+let timerPhaseName = 'fokus';
+let secondsLeft = FOCUS_SECONDS;
+let cyclesDone = 0;
+let timerId = null;
+
+function formatTime(totalSeconds) {
+  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
+function renderTimer() {
+  timerNumber.textContent = formatTime(secondsLeft);
+  timerPhase.textContent = timerPhaseName === 'fokus' ? 'Fokus' : 'Istirahat';
+
+  timerCycles.replaceChildren();
+  for (let i = 0; i < CYCLE_COUNT; i += 1) {
+    const dot = document.createElement('span');
+    dot.className = i < cyclesDone ? 'siklus isi' : 'siklus';
+    timerCycles.append(dot);
+  }
+  timerCycleText.textContent = `${cyclesDone} dari ${CYCLE_COUNT} siklus fokus selesai`;
+
+  startButton.disabled = timerId !== null;
+  pauseButton.disabled = timerId === null;
+}
+
+function nextPhase() {
+  if (timerPhaseName === 'fokus') {
+    cyclesDone += 1;
+    if (cyclesDone >= CYCLE_COUNT) {
+      // Empat siklus selesai: timer berhenti dan kembali ke awal.
+      clearInterval(timerId);
+      timerId = null;
+      cyclesDone = 0;
+      timerPhaseName = 'fokus';
+      secondsLeft = FOCUS_SECONDS;
+      return;
+    }
+    timerPhaseName = 'istirahat';
+    secondsLeft = BREAK_SECONDS;
+  } else {
+    timerPhaseName = 'fokus';
+    secondsLeft = FOCUS_SECONDS;
+  }
+}
+
+function tick() {
+  secondsLeft -= 1;
+  if (secondsLeft <= 0) nextPhase();
+  renderTimer();
+}
+
+startButton.addEventListener('click', () => {
+  if (timerId !== null) return;
+  timerId = setInterval(tick, 1000);
+  renderTimer();
+});
+
+pauseButton.addEventListener('click', () => {
+  clearInterval(timerId);
+  timerId = null;
+  renderTimer();
+});
+
+renderTimer();
+
 render();

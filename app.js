@@ -14,8 +14,11 @@ const taskDeadline = document.getElementById('task-deadline');
 const errorTitle = document.getElementById('error-title');
 const errorCourse = document.getElementById('error-course');
 const errorDeadline = document.getElementById('error-deadline');
+const counter = document.getElementById('counter');
+const filterButtons = document.querySelectorAll('.filter-tombol');
 
 let tasks = [];
+let currentFilter = 'semua';
 
 function createId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -45,7 +48,15 @@ function formatDate(iso) {
 
 function emptyMessage() {
   if (tasks.length === 0) return 'Belum ada tugas. Tambahkan lewat form di atas.';
+  if (currentFilter === 'aktif') return 'Tidak ada tugas aktif pada deadline terdekat.';
+  if (currentFilter === 'selesai') return 'Belum ada tugas selesai pada deadline terdekat.';
   return 'Tidak ada tugas dalam 7 hari ke depan. Cek Tugas Jangka Panjang.';
+}
+
+function longEmptyMessage() {
+  if (currentFilter === 'aktif') return 'Tidak ada tugas jangka panjang yang aktif.';
+  if (currentFilter === 'selesai') return 'Belum ada tugas jangka panjang yang selesai.';
+  return 'Belum ada tugas jangka panjang.';
 }
 
 function createTaskItem(task) {
@@ -98,9 +109,15 @@ function createTaskItem(task) {
   return item;
 }
 
+function matchesFilter(task) {
+  if (currentFilter === 'aktif') return !task.selesai;
+  if (currentFilter === 'selesai') return task.selesai;
+  return true;
+}
+
 function render() {
-  const shortTasks = tasks.filter((task) => !isLongTerm(task));
-  const longTasks = tasks.filter((task) => isLongTerm(task));
+  const shortTasks = tasks.filter((task) => !isLongTerm(task) && matchesFilter(task));
+  const longTasks = tasks.filter((task) => isLongTerm(task) && matchesFilter(task));
 
   taskList.replaceChildren();
   for (const task of shortTasks) taskList.append(createTaskItem(task));
@@ -111,6 +128,15 @@ function render() {
   emptyState.hidden = shortTasks.length > 0;
   emptyState.textContent = emptyMessage();
   longEmpty.hidden = longTasks.length > 0;
+  longEmpty.textContent = longEmptyMessage();
+
+  counter.textContent = `${tasks.filter((task) => !task.selesai).length} tugas aktif`;
+
+  for (const button of filterButtons) {
+    const active = button.dataset.filter === currentFilter;
+    button.classList.toggle('on', active);
+    button.setAttribute('aria-pressed', String(active));
+  }
 }
 
 function showError(input, element, message) {
@@ -184,6 +210,13 @@ function handleTaskClick(event) {
 
 taskList.addEventListener('click', handleTaskClick);
 longList.addEventListener('click', handleTaskClick);
+
+for (const button of filterButtons) {
+  button.addEventListener('click', () => {
+    currentFilter = button.dataset.filter;
+    render();
+  });
+}
 
 function themeLabel(theme) {
   themeButton.textContent = theme === 'gelap' ? 'Mode terang' : 'Mode gelap';

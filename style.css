@@ -1,0 +1,112 @@
+:root {
+  color-scheme: light;
+  --font: "Inter", "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --latar-a: #f3eefd;
+  --latar-b: #e5daf8;
+
+  --permukaan: #ffffff;
+  --garis: #e0d5f6;
+  --teks: #241f38;
+  --redup: #5a5178;
+
+  --gelap: #2b2344;
+  --gelap-teks: #f5f2ff;
+  --gelap-redup: #bfb3e6;
+  --gelap-item: #372e56;
+  --gelap-garis: #4b4173;
+  --gelap-filter: #241d3d;
+
+  --aksen: #6d3fd6;
+  --aksen-hover: #5c33bd;
+  --aksen-teks: #ffffff;
+  --aksen-lembut: #ede7fd;
+  --aksen-terang: #9d84ff;
+  --aksen-terang-teks: #1b1430;
+  --status: #c9b8ff;
+
+  --garis-kontrol: #7f6fb4;
+  --ring: #6d3fd6;
+  --ring-gelap: #b9a3ff;
+
+  --radius-kartu: 1rem;
+  --radius-item: 0.75rem;
+  --radius-kontrol: 0.6rem;
+}
+
+:root[data-tema="gelap"] {
+  color-scheme: dark;
+
+  --latar-a: #171226;
+  --latar-b: #201739;
+
+  --permukaan: #241d3d;
+  --garis: #3a3157;
+  --teks: #ece6ff;
+  --redup: #b0a4d9;
+
+  --gelap: #2a2246;
+  --gelap-teks: #f3eeff;
+  --gelap-redup: #bfb3e6;
+  --gelap-item: #352c54;
+  --gelap-garis: #4a4069;
+  --gelap-filter: #1f1936;
+
+  --aksen: #9d84ff;
+  --aksen-hover: #b09bff;
+  --aksen-teks: #1b1430;
+  --aksen-lembut: #322a4d;
+
+  --garis-kontrol: #7f6fb4;
+  --ring: #b9a3ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--teks);
+  background: linear-gradient(160deg, var(--latar-a), var(--latar-b));
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+h1 {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.kartu-gelap :focus-visible {
+  outline-color: var(--ring-gelap);
+}
+
+.wadah {
+  max-width: 66rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3.5rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

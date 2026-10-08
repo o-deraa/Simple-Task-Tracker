@@ -1,4 +1,5 @@
 const THEME_KEY = 'ttk-tema';
+const STORAGE_KEY = 'taskTracker';
 const HARI_JANGKA_PANJANG = 7;
 
 const taskList = document.getElementById('task-list');
@@ -21,11 +22,46 @@ const progressPercent = document.getElementById('progress-percent');
 const progressBar = document.getElementById('progress-bar');
 const progressFill = document.getElementById('progress-fill');
 
-let tasks = [];
+let tasks = loadTasks();
 let currentFilter = 'semua';
 
 function createId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function isValidTask(item) {
+  return (
+    item &&
+    typeof item === 'object' &&
+    typeof item.judul === 'string' &&
+    typeof item.matkul === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(item.deadline)
+  );
+}
+
+// Data tersimpan yang rusak atau bukan array diabaikan supaya aplikasi tetap jalan.
+function loadTasks() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!Array.isArray(stored)) return [];
+    return stored.filter(isValidTask).map((item) => ({
+      id: typeof item.id === 'string' || typeof item.id === 'number' ? String(item.id) : createId(),
+      judul: item.judul,
+      matkul: item.matkul,
+      deadline: item.deadline,
+      selesai: Boolean(item.selesai),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function saveTasks() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  } catch {
+    // Mode privat atau penyimpanan penuh: aplikasi tetap jalan tanpa tersimpan.
+  }
 }
 
 function daysUntil(iso) {
@@ -113,6 +149,10 @@ function createTaskItem(task) {
   return item;
 }
 
+function byDeadline(a, b) {
+  return a.deadline.localeCompare(b.deadline);
+}
+
 function matchesFilter(task) {
   if (currentFilter === 'aktif') return !task.selesai;
   if (currentFilter === 'selesai') return task.selesai;
@@ -122,6 +162,8 @@ function matchesFilter(task) {
 function render() {
   const shortTasks = tasks.filter((task) => !isLongTerm(task) && matchesFilter(task));
   const longTasks = tasks.filter((task) => isLongTerm(task) && matchesFilter(task));
+  shortTasks.sort(byDeadline);
+  longTasks.sort(byDeadline);
 
   taskList.replaceChildren();
   for (const task of shortTasks) taskList.append(createTaskItem(task));
@@ -191,6 +233,7 @@ taskForm.addEventListener('submit', (event) => {
   }
 
   tasks.push({ id: createId(), judul, matkul, deadline, selesai: false });
+  saveTasks();
   taskForm.reset();
   taskTitle.focus();
   render();
@@ -216,6 +259,7 @@ function handleTaskClick(event) {
     return;
   }
 
+  saveTasks();
   render();
 }
 

@@ -163,6 +163,28 @@ taskTitle.addEventListener('input', () => clearError(taskTitle, errorTitle));
 taskCourse.addEventListener('change', () => clearError(taskCourse, errorCourse));
 taskDeadline.addEventListener('input', () => clearError(taskDeadline, errorDeadline));
 
+// Satu listener per <ul> melayani checkbox dan tombol hapus, termasuk item yang baru dirender.
+function handleTaskClick(event) {
+  const item = event.target.closest('.tugas');
+  if (!item) return;
+
+  const task = tasks.find((entry) => entry.id === item.dataset.id);
+  if (!task) return;
+
+  if (event.target.matches('.tugas-cek')) {
+    task.selesai = event.target.checked;
+  } else if (event.target.closest('.tugas-hapus')) {
+    tasks = tasks.filter((entry) => entry.id !== task.id);
+  } else {
+    return;
+  }
+
+  render();
+}
+
+taskList.addEventListener('click', handleTaskClick);
+longList.addEventListener('click', handleTaskClick);
+
 function themeLabel(theme) {
   themeButton.textContent = theme === 'gelap' ? 'Mode terang' : 'Mode gelap';
 }

@@ -16,6 +16,10 @@ const errorCourse = document.getElementById('error-course');
 const errorDeadline = document.getElementById('error-deadline');
 const counter = document.getElementById('counter');
 const filterButtons = document.querySelectorAll('.filter-tombol');
+const progressCount = document.getElementById('progress-count');
+const progressPercent = document.getElementById('progress-percent');
+const progressBar = document.getElementById('progress-bar');
+const progressFill = document.getElementById('progress-fill');
 
 let tasks = [];
 let currentFilter = 'semua';
@@ -131,6 +135,13 @@ function render() {
   longEmpty.textContent = longEmptyMessage();
 
   counter.textContent = `${tasks.filter((task) => !task.selesai).length} tugas aktif`;
+
+  const doneCount = tasks.filter((task) => task.selesai).length;
+  const percent = tasks.length === 0 ? 0 : Math.round((doneCount / tasks.length) * 100);
+  progressCount.textContent = `${doneCount} OF ${tasks.length}`;
+  progressPercent.textContent = `${percent}%`;
+  progressFill.style.width = `${percent}%`;
+  progressBar.setAttribute('aria-valuenow', String(percent));
 
   for (const button of filterButtons) {
     const active = button.dataset.filter === currentFilter;

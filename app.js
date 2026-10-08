@@ -300,6 +300,7 @@ const timerCycles = document.getElementById('timer-cycles');
 const timerCycleText = document.getElementById('timer-cycle-text');
 const startButton = document.getElementById('start-button');
 const pauseButton = document.getElementById('pause-button');
+const resetButton = document.getElementById('reset-button');
 
 let timerPhaseName = 'fokus';
 let secondsLeft = FOCUS_SECONDS;
@@ -333,8 +334,7 @@ function nextPhase() {
     cyclesDone += 1;
     if (cyclesDone >= CYCLE_COUNT) {
       // Empat siklus selesai: timer berhenti dan kembali ke awal.
-      clearInterval(timerId);
-      timerId = null;
+      stopTimer();
       cyclesDone = 0;
       timerPhaseName = 'fokus';
       secondsLeft = FOCUS_SECONDS;
@@ -354,6 +354,20 @@ function tick() {
   renderTimer();
 }
 
+function stopTimer() {
+  clearInterval(timerId);
+  timerId = null;
+}
+
+// Kembalikan timer ke kondisi awal: 25 menit fokus, belum ada siklus, berhenti.
+function resetTimer() {
+  stopTimer();
+  timerPhaseName = 'fokus';
+  secondsLeft = FOCUS_SECONDS;
+  cyclesDone = 0;
+  renderTimer();
+}
+
 startButton.addEventListener('click', () => {
   if (timerId !== null) return;
   timerId = setInterval(tick, 1000);
@@ -361,10 +375,11 @@ startButton.addEventListener('click', () => {
 });
 
 pauseButton.addEventListener('click', () => {
-  clearInterval(timerId);
-  timerId = null;
+  stopTimer();
   renderTimer();
 });
+
+resetButton.addEventListener('click', resetTimer);
 
 renderTimer();
 
